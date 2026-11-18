@@ -1,0 +1,12 @@
+# Copy this file to terraform.tfvars, then set your group's prefix:
+#     cp terraform.tfvars.example terraform.tfvars
+#
+# This is the ONLY value you need to change. It selects the pre-made resource
+# group (named <prefix>-rg) your group deploys into, and names everything you
+# create. terraform.tfvars is gitignored.
+
+prefix = "vice-city-01"
+
+# Everything else has a sensible default in main.tf. You normally won't touch these:
+# vm_size             = "Standard_B1s"
+# ssh_public_key_path = "~/.ssh/id_rsa.pub"

@@ -1,0 +1,12 @@
+# Mission 1 — one Social Hub container serving port 80.
+name: social-hub
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: social-hub:latest
+    ports:
+      - "80:80"
+    restart: unless-stopped

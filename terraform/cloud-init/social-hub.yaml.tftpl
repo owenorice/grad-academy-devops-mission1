@@ -1,0 +1,35 @@
+#cloud-config
+# This script runs ONCE when the VM first boots. Terraform injects the real
+# files from app/ and docker/ into the placeholders below, so the VM always
+# runs exactly what's in this repo.
+#
+# It writes the app files to /opt/social-hub, installs Docker, then starts
+# the container.
+
+write_files:
+  - path: /opt/social-hub/server.js
+    permissions: '0644'
+    content: |
+      ${indent(6, server_js)}
+
+  - path: /opt/social-hub/package.json
+    permissions: '0644'
+    content: |
+      ${indent(6, package_json)}
+
+  - path: /opt/social-hub/Dockerfile
+    permissions: '0644'
+    content: |
+      ${indent(6, dockerfile)}
+
+  - path: /opt/social-hub/docker-compose.yml
+    permissions: '0644'
+    content: |
+      ${indent(6, compose)}
+
+runcmd:
+  # Install Docker Engine + the compose plugin.
+  - curl -fsSL https://get.docker.com | sh
+  - usermod -aG docker ${admin_username}
+  # Build and start the Social Hub container on port 80.
+  - cd /opt/social-hub && docker compose up -d --build
