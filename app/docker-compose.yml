@@ -9,6 +9,9 @@ services:
     ports:
       - "80:5000"
     restart: unless-stopped
+    # CPU cost per login (PBKDF2 iterations). Raise to fall over sooner.
+    environment:
+      - HASH_ITERATIONS=150000
     # Deliberately starve the container so external load (Locust) can overwhelm
     # it. These are real resource caps, not simulated slowness. Tune as needed.
     cpus: "0.1"        # a tenth of one vCPU
