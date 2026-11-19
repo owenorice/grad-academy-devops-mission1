@@ -10,3 +10,6 @@ prefix = "vice-city-01"
 # Everything else has a sensible default in main.tf. You normally won't touch these:
 # vm_size             = "Standard_B1s"
 # ssh_public_key_path = "~/.ssh/id_rsa.pub"
+
+# If you forked this repo, point the VM at YOUR fork so it clones your app:
+# repo_url = "https://github.com/<you>/grad-academy-devops-mission1.git"

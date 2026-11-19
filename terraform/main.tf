@@ -40,7 +40,7 @@ provider "azurerm" {
 variable "prefix" {
   description = "Your group's prefix — the ONLY value you need to set. It picks the pre-made resource group (named <prefix>-rg) you deploy into, and names every resource you create."
   type        = string
-  default     = "vice-city-01"
+  default     = "vice-city"
 }
 
 variable "vm_size" {
@@ -59,6 +59,12 @@ variable "ssh_public_key_path" {
   description = "Path to your SSH public key. Run `ssh-keygen` if you don't have one."
   type        = string
   default     = "~/.ssh/id_rsa.pub"
+}
+
+variable "repo_url" {
+  description = "Git repo the VM clones on first boot to build and run the app. Must be reachable from the VM (public, or include an access token in the URL)."
+  type        = string
+  default     = "https://github.com/owenorice/grad-academy-devops-mission1.git"
 }
 
 # A locals block holds values we reuse. These tags get stamped on every
@@ -179,7 +185,7 @@ resource "azurerm_network_interface" "main" {
 # 7. The Virtual Machine — a Linux box that runs our app in Docker
 # -----------------------------------------------------------------------------
 # cloud-init (custom_data) bootstraps the VM on first boot: it installs Docker,
-# drops in our app files, and starts the container. See cloud-init/.
+# clones this repo, and starts the Flask container. See cloud-init/.
 resource "azurerm_linux_virtual_machine" "main" {
   name                = "${var.prefix}-social-hub"
   computer_name       = "social-hub"
@@ -208,14 +214,11 @@ resource "azurerm_linux_virtual_machine" "main" {
     version   = "latest"
   }
 
-  # Render the cloud-init script, embedding our app + Docker files so this repo
-  # stays the single source of truth for what runs on the VM.
-  custom_data = base64encode(templatefile("${path.module}/cloud-init/social-hub.yaml.tftpl", {
+  # Render the cloud-init script. On boot the VM clones repo_url and runs the
+  # app from its app/ folder, so this repo stays the single source of truth.
+  custom_data = base64encode(templatefile("${path.module}/cloud-init/social-club.yaml.tftpl", {
     admin_username = var.admin_username
-    server_js      = file("${path.module}/../app/server.js")
-    package_json   = file("${path.module}/../app/package.json")
-    dockerfile     = file("${path.module}/../docker/Dockerfile")
-    compose        = file("${path.module}/../docker/docker-compose.yml")
+    repo_url       = var.repo_url
   }))
 }
 

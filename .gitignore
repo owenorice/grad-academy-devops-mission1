@@ -43,5 +43,8 @@ terraform.rc
 # Uncomment the line below if you want to ignore planout files.
 # planout
 
-# Node.js dependencies (app/)
-node_modules/
+# Python bytecode (app/)
+__pycache__/
+*.pyc
+
+# NOTE: app/.env is committed ON PURPOSE for the security challenge. Do not add it here.

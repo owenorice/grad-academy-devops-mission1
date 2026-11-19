@@ -1,6 +1,6 @@
 # GTA 6 DevOps Academy — Mission 1: The Vanilla Deployment
 
-> It's launch day for the *Rockstar Social Hub*. Your first job: get it online.
+> It's launch day for the *Rockstar Social Club*. Your first job: get it online.
 
 Your **first Terraform project**. You'll use Infrastructure as Code to deploy a
 small web app to **Azure** — a single Linux VM running the app in a Docker
@@ -12,7 +12,7 @@ container — then tear it all down again with one command.
 flowchart LR
   Internet --> PIP["Public IP"] --> NSG["NSG (firewall)"] --> NIC --> VM
   subgraph VM["Linux VM"]
-    APP["Social Hub container :80"]
+    APP["Flask Social Club :80"]
   end
 ```
 
@@ -23,20 +23,27 @@ build lands inside it.
 ## Repository layout
 
 ```
-app/                  Node.js "Social Hub" web app
-  server.js           A few endpoints that return JSON
-  package.json
-docker/               How the app is packaged into a container
-  Dockerfile
-  docker-compose.yml
+app/                  Flask "Social Club" web app (what you deploy)
+  app.py              Routes: / (login page), /login, /health
+  requirements.txt    Python deps (Flask)
+  templates/          index.html — the Rockstar Social Club login UI
+  static/             cover-art images
+  Dockerfile          Builds the app image
+  docker-compose.yml  Runs the container on port 80
+  .env                Fake secrets, committed on purpose (Security challenge)
 terraform/            Infrastructure as Code (this is the main event)
   main.tf             EVERYTHING: provider, network, VM, variables, outputs
-  cloud-init/         Script that boots the VM and starts the container
+  cloud-init/         Script that boots the VM, clones this repo, starts the app
   terraform.tfvars.example
 ```
 
 The whole Terraform config is in **one file** — `terraform/main.tf`. Read it top
 to bottom; it's commented section by section.
+
+**How the app gets onto the VM:** cloud-init runs on first boot and `git clone`s
+this repo, then `docker compose up`s the app from `app/`. So your app code must
+be pushed to GitHub. Deploying your own fork? Set `repo_url` in
+`terraform.tfvars`.
 
 ## Prerequisites
 
@@ -82,11 +89,12 @@ terraform output social_hub_url   # -> http://<public-ip>
 
 ### 3. See it running
 
-Give the VM **2–3 minutes** to install Docker and start the container, then open
-the URL in your browser or curl it:
+Give the VM **2–3 minutes** to install Docker, clone the repo and start the
+container, then open the site in your browser:
 
 ```bash
-curl "$(terraform output -raw social_hub_url)/api/v1/profile?id=42"
+terraform output -raw social_hub_url          # open this URL — the login page
+curl "$(terraform output -raw social_hub_url)/health"   # -> {"status":"ok"}
 ```
 
 Want to poke around the box? SSH in:
@@ -117,3 +125,36 @@ group itself in place for the next session.
 - **Providers & resources:** `main.tf` declares a *provider* (Azure), looks up
   your resource group with a `data` block, then creates *resources* (network,
   VM, …) inside it. `plan` shows the diff; `apply` makes reality match the code.
+
+## Run it locally (optional)
+
+You don't need Azure to see the app. With Docker installed:
+
+```bash
+cd app
+docker compose up --build
+```
+
+Then open http://localhost. `Ctrl-C`, then `docker compose down`, to stop.
+
+## Security challenge: the leaked `.env`
+
+`app/.env` holds fake secrets and was committed on purpose. The `Dockerfile`
+uses `COPY . .`, so those secrets get **baked into the image**:
+
+```bash
+cd app
+docker build -t social-club .
+docker run --rm social-club cat /app/.env     # prints the secrets — oops
+```
+
+Even adding `RUN rm .env` later wouldn't help: the file still lives in an
+earlier image layer (see `docker history`). The only real fix is to keep it out
+of the build context in the first place.
+
+**Your task:** stop the `.env` reaching the image — add a `.dockerignore` in
+`app/` that excludes `.env`, rebuild, and confirm:
+
+```bash
+docker run --rm social-club cat /app/.env     # -> No such file or directory
+```

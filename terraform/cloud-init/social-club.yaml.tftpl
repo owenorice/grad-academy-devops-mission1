@@ -1,0 +1,18 @@
+#cloud-config
+# Runs ONCE when the VM first boots. Terraform fills in the placeholders below.
+#
+# Steps: install git + Docker, clone this repo, then build and start the app.
+# The app lives in the repo's app/ folder, so that is the Docker build context.
+
+package_update: true
+packages:
+  - git
+
+runcmd:
+  # Install Docker Engine + the compose plugin.
+  - curl -fsSL https://get.docker.com | sh
+  - usermod -aG docker ${admin_username}
+  # Pull the app source straight from GitHub (option: git clone on boot).
+  - git clone ${repo_url} /opt/social-club
+  # Build and start the Flask container on port 80.
+  - cd /opt/social-club/app && docker compose up -d --build

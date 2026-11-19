@@ -1,0 +1,11 @@
+# One Flask container serving the Social Club page.
+# Host port 80 -> container port 5000 (Flask). On the Azure VM the NSG allows 80,
+# so the site is reachable at http://<public-ip>. Locally it's http://localhost.
+name: social-club
+
+services:
+  web:
+    build: .
+    ports:
+      - "80:5000"
+    restart: unless-stopped
