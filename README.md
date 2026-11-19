@@ -6,6 +6,10 @@ Your **first Terraform project**. You'll use Infrastructure as Code to deploy a
 small web app to **Azure** — a single Linux VM running the app in a Docker
 container — then tear it all down again with one command.
 
+The app itself is a plain, working login page — nothing fake or fragile baked in.
+The VM is deliberately small (`Standard_B1s` by default), so stress/load testing
+is a separate, external exercise and isn't part of this repo.
+
 ## What you'll build
 
 ```mermaid
@@ -34,7 +38,6 @@ app/                  Flask "Social Club" web app (what you deploy)
 terraform/            Infrastructure as Code (this is the main event)
   main.tf             EVERYTHING: provider, network, VM, variables, outputs
   cloud-init/         Script that boots the VM, clones this repo, starts the app
-  terraform.tfvars.example
 ```
 
 The whole Terraform config is in **one file** — `terraform/main.tf`. Read it top
@@ -42,8 +45,8 @@ to bottom; it's commented section by section.
 
 **How the app gets onto the VM:** cloud-init runs on first boot and `git clone`s
 this repo, then `docker compose up`s the app from `app/`. So your app code must
-be pushed to GitHub. Deploying your own fork? Set `repo_url` in
-`terraform.tfvars`.
+be pushed to GitHub. Deploying your own fork? Change the `repo_url` default in
+`main.tf`.
 
 ## Prerequisites
 
@@ -58,14 +61,17 @@ be pushed to GitHub. Deploying your own fork? Set `repo_url` in
 ```bash
 az login
 cd terraform
-cp terraform.tfvars.example terraform.tfvars
 ```
 
-Open `terraform.tfvars` and set **one value** — your group's prefix. It selects
-the pre-made resource group (`<prefix>-rg`) and names everything you create:
+Open `terraform/main.tf` and set **one value** — the `prefix` variable's
+`default`. It selects the pre-made resource group (`<prefix>-rg`) and names
+everything you create:
 
 ```hcl
-prefix = "vice-city-01"
+variable "prefix" {
+  ...
+  default = "vice-city"   # <- change this to your group's prefix
+}
 ```
 
 Then initialise Terraform (downloads the Azure provider):

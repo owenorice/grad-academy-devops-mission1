@@ -1,5 +1,4 @@
 from flask import Flask, request, render_template, jsonify
-import time
 
 app = Flask(__name__)
 
@@ -11,9 +10,11 @@ def index():
 
 @app.route("/login", methods=["POST"])
 def login():
-    # Stub — accepts any credentials
-    time.sleep(0.1)  # simulate work; makes it easy to overwhelm under load
-    return jsonify({"status": "error", "message": "Service unavailable — high traffic. Please try again later."})
+    # Accepts any credentials and "signs in". A normal, working endpoint — the
+    # only load on this app comes from real external traffic (e.g. Locust).
+    data = request.get_json(silent=True) or {}
+    username = data.get("username") or "player"
+    return jsonify({"status": "ok", "message": f"Welcome back, {username}. You're signed in."})
 
 
 @app.route("/health")

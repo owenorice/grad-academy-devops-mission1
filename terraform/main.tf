@@ -35,18 +35,18 @@ provider "azurerm" {
 
 
 # -----------------------------------------------------------------------------
-# 2. Variables — the knobs you can tune (see terraform.tfvars.example)
+# 2. Variables — the knobs you edit right here (change the defaults below)
 # -----------------------------------------------------------------------------
 variable "prefix" {
   description = "Your group's prefix — the ONLY value you need to set. It picks the pre-made resource group (named <prefix>-rg) you deploy into, and names every resource you create."
   type        = string
-  default     = "vice-city"
+  default     = "los-santos"
 }
 
 variable "vm_size" {
-  description = "VM size. B1s = 1 vCPU / 1 GB — plenty for one small container."
+  description = "VM size."
   type        = string
-  default     = "Standard_B1s"
+  default     = "Standard_F1alds_v7"
 }
 
 variable "admin_username" {

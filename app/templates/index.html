@@ -96,38 +96,6 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* -- Hero banner -- */
-    .hero {
-      background: linear-gradient(135deg, #0a0a0a 0%, #1a1008 50%, #0a0a0a 100%);
-      border-bottom: 1px solid #222;
-      padding: 20px 32px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .alert-dot {
-      width: 10px;
-      height: 10px;
-      background: #e74c3c;
-      border-radius: 50%;
-      animation: pulse 1.4s infinite;
-      flex-shrink: 0;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.3); }
-    }
-
-    .hero p {
-      font-size: 0.85rem;
-      color: #c8a84b;
-      letter-spacing: 0.5px;
-    }
-
-    .hero strong { color: #fff; }
-
     /* -- Main layout -- */
     main {
       flex: 1;
@@ -184,8 +152,6 @@
       flex-shrink: 0;
     }
 
-    .dot-red { background: #e74c3c; }
-    .dot-yellow { background: #f39c12; animation: pulse 2s infinite; }
     .dot-green { background: #2ecc71; }
 
     /* -- Login card -- */
@@ -287,7 +253,7 @@
 </head>
 <body>
 
-  <div class="nav-toast" id="nav-toast">This section is unavailable due to the ongoing service disruption.</div>
+  <div class="nav-toast" id="nav-toast">This section isn't part of the lab.</div>
 
   <header>
     <div class="logo">
@@ -304,11 +270,6 @@
     </nav>
   </header>
 
-  <div class="hero">
-    <div class="alert-dot"></div>
-    <p><strong>Service disruption in progress.</strong> GTA VI launch has caused unprecedented traffic. Our team is working to restore full service. Queue times may exceed 45 minutes.</p>
-  </div>
-
   <main>
     <div class="gta-art">
       <div class="gta-label">Now Available</div>
@@ -316,16 +277,16 @@
 
       <div class="status-bar">
         <div class="status-item">
-          <div class="status-dot dot-red"></div>
-          Login Service - Degraded
-        </div>
-        <div class="status-item">
-          <div class="status-dot dot-yellow"></div>
-          Game Servers - High Load
+          <div class="status-dot dot-green"></div>
+          Login Service - Operational
         </div>
         <div class="status-item">
           <div class="status-dot dot-green"></div>
-          Game Purchase - Operational
+          Game Servers - Operational
+        </div>
+        <div class="status-item">
+          <div class="status-dot dot-green"></div>
+          Store - Operational
         </div>
       </div>
     </div>
@@ -371,7 +332,7 @@
       e.preventDefault();
       const msg = document.getElementById("response-msg");
       msg.style.color = "#f39c12";
-      msg.textContent = "This service is temporarily unavailable due to high traffic.";
+      msg.textContent = "Account management isn't part of this lab.";
     }
 
     document.getElementById("login-form").addEventListener("submit", async function(e) {
@@ -391,6 +352,7 @@
           })
         });
         const data = await res.json();
+        msg.style.color = data.status === "ok" ? "#2ecc71" : "#e74c3c";
         msg.textContent = data.message;
       } catch {
         msg.textContent = "Connection failed. Server may be overloaded.";

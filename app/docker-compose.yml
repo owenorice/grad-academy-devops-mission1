@@ -9,3 +9,7 @@ services:
     ports:
       - "80:5000"
     restart: unless-stopped
+    # Deliberately starve the container so external load (Locust) can overwhelm
+    # it. These are real resource caps, not simulated slowness. Tune as needed.
+    cpus: "0.25"        # a quarter of one vCPU
+    mem_limit: "128m"   # OOM-killed if it balloons under load
