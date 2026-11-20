@@ -3,12 +3,8 @@
 > It's launch day for the *Rockstar Social Club*. Your first job: get it online.
 
 Your **first Terraform project**. You'll use Infrastructure as Code to deploy a
-small web app to **Azure** — a single Linux VM running the app in a Docker
-container — then tear it all down again with one command.
-
-The app itself is a plain, working login page — nothing fake or fragile baked in.
-The VM is deliberately small (`Standard_B1s` by default), so stress/load testing
-is a separate, external exercise and isn't part of this repo.
+small web app to **Azure**, a single Linux VM running the app in a Docker
+container - then tear it all down again with one command.
 
 ## What you'll build
 
@@ -20,14 +16,14 @@ flowchart LR
   end
 ```
 
-Your instructor has already created one Azure **Resource Group** per group. You
+There's already one Azure **Resource Group** per group. You
 just point Terraform at yours with a single `prefix` variable; everything you
-build lands inside it.
+build will be inside inside it. Think of it as a room with your server inside.
 
 ## Repository layout
-
+For this practical, you only need to worry about what's inside `terraform/`
 ```
-app/                  Flask "Social Club" web app (what you deploy)
+app/                  "Social Club" web app (what you deploy)
   app.py              Routes: / (login page), /login, /health
   requirements.txt    Python deps (Flask)
   templates/          index.html — the Rockstar Social Club login UI
@@ -40,21 +36,21 @@ terraform/            Infrastructure as Code (this is the main event)
   cloud-init/         Script that boots the VM, clones this repo, starts the app
 ```
 
-The whole Terraform config is in **one file** — `terraform/main.tf`. Read it top
+The whole Terraform config is in **one file** - `terraform/main.tf`. Read it top
 to bottom; it's commented section by section.
 
 **How the app gets onto the VM:** cloud-init runs on first boot and `git clone`s
-this repo, then `docker compose up`s the app from `app/`. So your app code must
-be pushed to GitHub. Deploying your own fork? Change the `repo_url` default in
-`main.tf`.
+this repo, then `docker compose up`s the app from `app/`.
 
 ## Prerequisites
 
 - [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.5
-- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) — then run `az login`
-- An SSH key pair — run `ssh-keygen` if `~/.ssh/id_rsa.pub` doesn't exist
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) - then run `az login`
+- An SSH key pair - run `ssh-keygen` if `~/.ssh/id_rsa.pub` doesn't exist
 
 ## Step by step
+
+Open your termainal
 
 ### 1. Log in and set your prefix
 
@@ -74,7 +70,7 @@ variable "prefix" {
 }
 ```
 
-Then initialise Terraform (downloads the Azure provider):
+Then initialise Terraform (downloads the Azure provider, this will create a folder in your repo):
 
 ```bash
 terraform init
@@ -113,35 +109,25 @@ exit
 
 ### 4. Clean up
 
-> Always destroy what you built — Azure charges while it runs.
+> Always destroy what you built - Azure charges while it runs.
 
 ```bash
 terraform destroy    # type "yes"; deletes every resource YOU created
 ```
 
 This removes the VM, network and IP you built but leaves the pre-made resource
-group itself in place for the next session.
+group in.
 
 ## Key concepts
 
 - **Infrastructure as Code:** your whole environment is described in text files
   you can version, review, and recreate.
 - **State:** Terraform records what it built in `terraform.tfstate` so it knows
-  what to change or destroy next time. (Gitignored — it can contain secrets.)
+  what to change or destroy next time. (Gitignored - it can contain secrets.)
 - **Providers & resources:** `main.tf` declares a *provider* (Azure), looks up
   your resource group with a `data` block, then creates *resources* (network,
   VM, …) inside it. `plan` shows the diff; `apply` makes reality match the code.
 
-## Run it locally (optional)
-
-You don't need Azure to see the app. With Docker installed:
-
-```bash
-cd app
-docker compose up --build
-```
-
-Then open http://localhost. `Ctrl-C`, then `docker compose down`, to stop.
 
 ## Security challenge: the leaked `.env`
 
