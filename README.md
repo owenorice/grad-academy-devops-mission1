@@ -20,6 +20,13 @@ There's already one Azure **Resource Group** per group. You
 just point Terraform at yours with a single `prefix` variable; everything you
 build will be inside inside it. Think of it as a room with your server inside.
 
+The different groups are:
+- vice-city
+- los-santos
+- liberty-city
+- las-venturas
+- san-fierro
+
 ## Repository layout
 For this practical, you only need to worry about what's inside `terraform/`
 ```
